@@ -193,13 +193,6 @@ namespace cautolib
 
 	}
 
-	void ShowDesktop()
-	{
-		keyboard::VirtualKeyBoard vkb;
-		if (!vkb.input(2, KeyValue::KeyLWIN, KeyValue::KeyR))
-			printf("error");
-		system("pause");
-	}
 }
 
 #endif // !CAUTO_LIB
