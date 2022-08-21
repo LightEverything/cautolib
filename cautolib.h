@@ -29,6 +29,7 @@ namespace cautolib
 		KeyPrint = 0x2A,
 		KeyDel = 0x2E,
 		KeyPrtSc = 0x2C,
+		KeySpace = 0x20,
 		Key0 = 0x30,
 		Key1 = 0x31,
 		Key2 = 0x32,
@@ -126,7 +127,7 @@ namespace cautolib
 				// 按下
 				userin[0].type = INPUT_KEYBOARD;
 				userin[0].ki.wVk = k;
-				userin[0].ki.wVk = KeyStatus::KeysDown;
+				userin[0].ki.dwFlags = KeyStatus::KeysDown;
 				// 释放
 				userin[1].type = INPUT_KEYBOARD;
 				userin[1].ki.wVk = k;
