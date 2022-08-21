@@ -101,9 +101,12 @@ namespace cautolib
 		class BaseInput
 		{
 		public:
-			BaseInput() {}
+			BaseInput(DWORD types): type(types){}
 			virtual ~BaseInput() {}
 			virtual bool input() = 0;
+			virtual DWORD getType(){ return type;}
+		private:
+			DWORD type;
 		};
 	}
 
@@ -115,7 +118,7 @@ namespace cautolib
 		{
 		public:
 
-			VirtualKeyBoard() {}
+			VirtualKeyBoard(): BaseInput(INPUT_KEYBOARD) {}
 			~VirtualKeyBoard() {}
 
 			// 解除接口类
@@ -125,13 +128,9 @@ namespace cautolib
 			{
 				INPUT userin[2] = {};
 				// 按下
-				userin[0].type = INPUT_KEYBOARD;
-				userin[0].ki.wVk = k;
-				userin[0].ki.dwFlags = KeyStatus::KeysDown;
+				initInput(userin[0], k, KeyStatus::KeysDown);
 				// 释放
-				userin[1].type = INPUT_KEYBOARD;
-				userin[1].ki.wVk = k;
-				userin[1].ki.dwFlags = KeyStatus::KeysUp;
+				initInput(userin[1], k, KeyStatus::KeysUp);
 
 				return SendInput(ARRAYSIZE(userin), userin, sizeof(INPUT));
 			}
@@ -146,14 +145,9 @@ namespace cautolib
 				for (int i = 0; i < num; i++)
 				{
 					//  获取 k 的参数
-					auto k = va_arg(plist, int);
-					userin[i].type = INPUT_KEYBOARD;
-					userin[i].ki.wVk = k;
-					userin[i].ki.dwFlags = KeyStatus::KeysDown;
-
-					userin[i + num].type = INPUT_KEYBOARD;
-					userin[i + num].ki.wVk = k;
-					userin[i + num].ki.dwFlags = KeyStatus::KeysUp;
+					auto k = KeyValue(va_arg(plist, int));
+					initInput(userin[i], k, KeyStatus::KeysDown);
+					initInput(userin[i + num], k, KeyStatus::KeysUp);
 				}
 
 				bool reflag = SendInput(2 * num, userin, sizeof(INPUT));
@@ -165,17 +159,21 @@ namespace cautolib
 			virtual bool fixInput(const KeyValue& k, const KeyStatus& st)
 			{
 				INPUT userin[1] = {};
-				userin[0].type = INPUT_KEYBOARD;
-				userin[0].ki.wVk = k;
-				userin[0].ki.dwFlags = st;
+				initInput(userin[0], k, st);
 				return SendInput(ARRAYSIZE(userin), userin, sizeof(INPUT));
 			}
-
+			
 		private:
 			// 不允许复制构造函数
-			VirtualKeyBoard(VirtualKeyBoard& tmp) {}
+			VirtualKeyBoard(VirtualKeyBoard& tmp) : BaseInput(INPUT_KEYBOARD) {}
 			// 不允许赋值运算符号
 			void operator=(VirtualKeyBoard& tmp) {}
+			void initInput(INPUT& userin, const KeyValue& k, const KeyStatus& s)
+			{
+				userin.type = getType();
+				userin.ki.wVk = k;
+				userin.ki.dwFlags = s;
+			}
 		};
 	}
 
